@@ -1,6 +1,6 @@
 # Python 工程基础与最小 Agent
 
-本项目按小步练习逐步扩展，当前包含文本功能模块 `text_tools.py`、JSON 练习入口 `main.py`、HTTP 练习入口 `http_demo.py`、HTTP 功能模块 `http_tools.py`、模型调用练习入口 `model_demo.py` 和模型请求模块 `model_client.py`。
+本项目按小步练习逐步扩展，当前包含文本功能模块 `text_tools.py`、JSON 练习入口 `main.py`、HTTP 练习入口 `http_demo.py`、HTTP 功能模块 `http_tools.py`、模型调用练习入口 `model_demo.py`、模型请求模块 `model_client.py`、两轮会话练习 `conversation_demo.py` 和工具说明 `tool_definitions.py`。
 
 ## 当前环境
 
@@ -53,10 +53,13 @@ Set-Location 'D:\Dev\projects\agent-lab'
 - 首次模型调用：学习者亲手创建 `model_demo.py`，使用环境变量中的密钥、Bearer 请求头和 JSON 请求体，通过 Requests 调用 `deepseek-flash`。学习者实际返回：“Agent 是一个能感知环境、自主决策并采取行动以达成目标的智能实体。”助手已核对当前代码中的请求与回答提取逻辑，调用通过。
 - 模型响应观察：学习者成功打印第一条 choice 的消息、结束原因与用量。本次实际 `role=assistant`、`finish_reason=stop`；输入 11 token，生成 18 token，总计 29；输入缓存命中 0、未命中 11，两者合计为输入 11，缓存字段不额外累加到总数。助手已核对当前摘要输出代码；这些数值属于本次响应，后续调用以实际返回为准。
 - 模型函数封装：学习者已修正客户端返回值为完整字典，移除入口中重复的配置检查，恢复 JSON 摘要并提供真实调用输出，显示“返回类型：dict”。助手随后通过替代 HTTP 响应验证实际客户端返回完整字典、入口正确生成摘要，没有发送额外真实模型请求；返回约定验收通过。
+- 两轮会话：学习者已修正把 `messages` 列表误写为 `email.message` 模块的问题，并正确追加第一轮 assistant 消息和第二轮 user 提问。实际输出为第一轮“已记住。”、第二轮 `agent-lab`，第二次请求角色顺序为 `user / assistant / user`；助手已核对当前会话代码，验收通过。
+- 工具说明：学习者已创建 `tool_definitions.py`，在 `TOOLS` 中描述 `inspect_text`，参数对象包含必填字符串 `text`，`additionalProperties=False`。学习者提供的本地 JSON 输出与助手读取的当前定义一致，说明结构验收通过。
+- 工具调用请求：学习者已为客户端增加可选 `tools` 参数，并创建 `tool_call_demo.py`。实际响应 `finish_reason=tool_calls`，assistant 的 `tool_calls` 中包含函数名 `inspect_text` 和 JSON 字符串参数 `{"text": "Hello\nAgent"}`；助手已核对客户端透传及观察脚本，工具请求观察验收通过。当前尚未在此流程中执行本地函数或回填工具结果。
 
 ## 学习进度
 
-- 当前：Python 工程基础、HTTP 练习、首次 DeepSeek 模型请求、模型响应观察与可复用模型请求函数封装均已完成；开始学习会话消息与上下文。
+- 当前：Python 工程基础、HTTP 练习、模型调用与函数封装、响应观察、两轮会话、首个工具说明及模型生成工具调用请求均已完成；工具执行、结果回填与循环尚未接通。
 - 学习起点：学习者已有 Python 语法基础，跳过基础语法复习。
 - 行数约定：空字符串为 0 行，末尾换行不额外增加一行，采用 `len(text.splitlines())`。
 - 类型标注：修改前曾实测传入 `bytes` 仍成功返回统计结果，说明类型标注本身不自动执行运行时校验；现在通过显式类型检查拒绝非字符串。
@@ -65,11 +68,22 @@ Set-Location 'D:\Dev\projects\agent-lab'
 - 官方接口核实（2026-10-21）：入口 `https://api.deepseek.com/chat/completions`，认证方式为 Bearer API Key；官方入门示例当前采用模型名 `deepseek-flash`。来源：https://api-docs.deepseek.com/zh-cn/ 。学习者已通过该模型完成一次真实请求。
 - 当前模型参数：`deepseek-flash`，关闭 thinking，`stream=False`，`max_tokens=128`；入口通过 `call_model(messages)` 获取完整响应，打印返回类型与响应摘要。
 - 模型函数离线验收：模块导入没有输出或网络请求，消息正确进入请求体，缺少密钥时抛出 `RuntimeError`，HTTP 请求异常能向调用方传播；修正后客户端返回完整字典，入口正确读取消息、结束原因和用量。上述检查未发送真实模型请求。
-- 下一步练习：学习者新建 `conversation_demo.py`，完成两轮调用；第一轮告知项目名 `agent-lab`，将返回的 assistant 消息追加到 `messages`，再追加追问项目名的 user 消息后发送第二轮请求；观察第二次请求的角色顺序为 `user / assistant / user`，第二轮应能根据历史回答项目名。
-- 会话概念核实（2026-10-21）：DeepSeek `/chat/completions` 是无状态接口，每次请求需由程序提交所需对话历史。来源：https://api-docs.deepseek.com/zh-cn/guides/multi_round_chat/ 。多轮练习尚未完成。
+- 下一步教学：先对照已有 CodeCrafters 项目，说明工具定义、请求模型、参数解析执行、结果回填和循环的对应关系，再继续为当前工具请求加入参数校验和 `inspect_text` 执行。学习者已提出两个项目很相似、此前旧项目尚未完全理解，后续教学采用两边代码对照，减少不必要的机制重复。
+- 会话概念核实（2026-10-21）：DeepSeek `/chat/completions` 是无状态接口，每次请求需由程序提交所需对话历史。来源：https://api-docs.deepseek.com/zh-cn/guides/multi_round_chat/ 。两轮练习已完成。
+- 工具调用概念核实（2026-10-21）：工具说明包含名称、用途及参数的 JSON Schema，模型根据说明生成调用请求，实际函数由程序提供并执行。来源：https://api-docs.deepseek.com/zh-cn/guides/tool_calls/ 。
 - HTTP 404 验证（2026-10-21）：助手已确认测试地址返回 HTTP 404，`raise_for_status()` 抛出 `HTTPError`，且该异常属于 `RequestException`；学习者已通过自身工具观察失败并恢复成功路径。
 - HTTP 准备验证（2026-10-21）：`https://httpbin.org/get?topic=agent&page=1` 实测 HTTP 200，响应中的 `args` 包含 `topic: agent` 和 `page: "1"`。
 - 本机笔记服务观察（2026-10-21）：Java 进程监听 8080，但读取笔记列表的两次请求分别在 5 秒和 12 秒超时；当前未确认服务响应问题的原因，尚未修复。HTTP 入门练习使用已验证的公开回显接口，后续接入笔记服务前需重新检查。
-- 后续：两轮会话与上下文验收、工具说明与结构化参数、两个工具的 Agent 循环。
+- 后续：与旧项目对照理解、参数解析与校验、工具执行、结果回填、两个工具的 Agent 循环。
+
+## 与已有 CodeCrafters 项目的对应关系
+
+旧项目：`D:\0A研究生学习\code_clauld_code\codecrafters-claude-code-python-main`。2026-10-21 已读取其实际 `app/main.py`，并核对聊天“完成 Claude Code Skills 阶段任务”。两个工程共享 Agent 的基本机制，当前工程用于逐步亲手重建并验证这些机制。
+
+- 当前 `tool_definitions.py` 对应旧项目 `app/main.py` 第 97 行开始的 Read、Write、Bash 工具说明。
+- 当前 `model_client.call_model()` 对应旧项目第 156 行开始的模型请求；旧项目使用 SDK，当前通过 Requests 观察 HTTP 与 JSON。
+- 当前已观察到的 `tool_calls` 对应旧项目第 171 行开始的遍历、`json.loads()` 参数解析和工具分派；当前本地执行尚待接入。
+- 工具结果回填对应旧项目第 198 行的 `role=tool`、`tool_call_id` 与结果内容；继续请求对应第 155 行的循环。当前尚待接入这两段。
+- 旧项目的 Skills 是另一层：第 14 行的 `build_skill_system_prompt()` 提供技能名称和描述，第 50 行的 `resolve_skill_prompt()` 处理 slash 命令并加载技能正文。这些内容进入提示词，和工具函数的名称、参数 schema、实际执行有不同职责。
 
 Java 笔记阶段按本次交接记录收尾：新增/修改的正常、空白、5000 和 5001 字符，共 8 项专项验证通过。该结果来自学习者交接，本项目没有重新执行 Java 接口测试。

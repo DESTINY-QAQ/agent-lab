@@ -2,7 +2,7 @@ import os
 import requests
 
 
-def call_model(messages: list[dict[str, str]]) -> dict:
+def call_model(messages: list[dict],tools: list[dict] | None = None,) -> dict:
     api_key = os.getenv("DEEPSEEK_API_KEY")
     if not api_key:
         raise RuntimeError("未读取到 DEEPSEEK_API_KEY")
@@ -18,6 +18,7 @@ def call_model(messages: list[dict[str, str]]) -> dict:
             json={
                 "model": "deepseek-flash",
                 "messages": messages,
+                "tools": tools,
                 "thinking": {"type": "disabled"},
                 "max_tokens": 128,
                 "stream": False,
