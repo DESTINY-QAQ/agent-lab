@@ -11,4 +11,11 @@ def inspect_text(text: str) -> dict[str, int]:
         "characters": characters,
         "lines": lines
     }
+
+def uppercase_text(text: str) -> dict[str, str]:
+    if not isinstance(text, str):
+        raise TypeError("text 必须是字符串 str")
+
+    uppercase = text.upper()
+    return {"text": uppercase}
     

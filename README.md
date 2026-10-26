@@ -1,89 +1,175 @@
-# Python 工程基础与最小 Agent
+# agent-lab：本地笔记 Agent
 
-本项目按小步练习逐步扩展，当前包含文本功能模块 `text_tools.py`、JSON 练习入口 `main.py`、HTTP 练习入口 `http_demo.py`、HTTP 功能模块 `http_tools.py`、模型调用练习入口 `model_demo.py`、模型请求模块 `model_client.py`、两轮会话练习 `conversation_demo.py` 和工具说明 `tool_definitions.py`。
+使用 Python 和 Requests 手写模型与工具循环的学习项目。支持笔记目录发现、关键词检索、正文读取、多轮对话和可复查的固定用例评估。
 
-## 当前环境
+## 当前阶段
 
-- 项目目录：`D:\Dev\projects\agent-lab`
-- 项目解释器：`D:\Dev\projects\agent-lab\.venv\Scripts\python.exe`
-- Python 版本：3.12.14
-- 环境来源：使用现有 Conda base 的 Python 创建独立 `.venv`。
-- 第三方依赖安装位置：项目 `.venv` 内。
-- pip 下载缓存：`D:\Dev\cache\pip`，沿用机器已有的 `PIP_CACHE_DIR` 设置，已核实实际生效路径。
-- 已安装 HTTP 客户端 Requests 2.34.2，实际导入位置在项目 `.venv` 中；`requirements.txt` 记录本次安装后的依赖版本，`pip check` 已通过。
-- 尚未安装模型 SDK 或 Agent 框架。
+截至 2026-10-26，已跑通本地笔记问答最小版本；最近一轮固定用例综合结果为 **5/5**。
 
-`.venv` 的 Python 运行时依赖现有 Conda base 的安装位置。若以后迁移或删除 base，需要重建此项目环境。
+评估范围为两份示例笔记、五条固定用例。工具与文件条件由程序检查，回答内容由人工审核；该结果对应本次记录。
 
-## 第一次运行
+## 启动程序
+
+当前项目路径为 `D:\Dev\projects\agent-lab`，已有 `.venv` 使用现有 Conda base 的 Python 3.12.14 创建。依赖清单见 `requirements.txt`。
 
 在 PowerShell 中执行：
 
 ```powershell
 Set-Location 'D:\Dev\projects\agent-lab'
-.\.venv\Scripts\python.exe .\main.py
+.\.venv\Scripts\python.exe .\tool_call_demo.py
 ```
 
-当前入口保留了 JSON 格式错误测试输入 `request_json = '{"text":}'`，预期输出：
+程序持续接收任务，支持：
+
+- `exit`：退出程序。
+- `/clear`：同时清空内存对话和 `conversation_history.json` 存档。
+- 空输入：提示重新输入。
+
+示例任务：
+
+```text
+请先搜索关键词“字典”，收到搜索结果后读取匹配的笔记正文，再根据正文用一句话解释字典的作用，并标注来源。
+```
+
+### 模型配置
+
+本机客户端优先读取环境变量 `DEEPSEEK_API_KEY`；未设置时读取源码目录之外的 `D:\Dev\config\private\agent-lab-deepseek.key`，因此已有配置下无需每天重新设置终端。
+
+其他机器可使用自己的 `DEEPSEEK_API_KEY` 环境变量。密钥值不写入源码、文档或评估记录。
+
+当前代码配置：`deepseek-flash`、关闭 thinking、非流式响应、`max_tokens=512`。Agent 调用时启用 JSON 输出模式；`call_model()` 的普通文本模式仍可由其他练习入口使用。
+
+## 已实现能力
+
+- 手写模型请求、工具执行、结果回填与继续请求的完整循环。
+- 每次任务最多发起三次模型请求；这不是整个终端会话的总上限。
+- 处理一次模型响应中的多个工具调用，并按调用 ID 回传各自结果。
+- 根据注册表分发函数，解析 JSON 参数并使用 `**arguments` 传参。
+- 工具成功回传 `ok/data`，失败回传 `ok/error`，供模型继续处理。
+- 检查结束原因；截断等非正常结果不作为完整最终回答加入历史。
+- 终端多轮对话、JSON 历史保存与加载、清空命令。
+- 模型最终返回结构化判断；程序控制资料不足时的文案和实际读取来源。
+
+### 工具列表
+
+| 工具 | 参数 | 返回用途 |
+|---|---|---|
+| `inspect_text` | `text` | 字符数和行数 |
+| `uppercase_text` | `text` | 转为大写的文本 |
+| `list_notes` | 无，调用参数为 `{}` | `notes` 顶层的 `.md`、`.txt` 文件名 |
+| `read_note` | `filename` | `notes` 顶层 UTF-8 文件的正文和文件名 |
+| `search_notes` | `keyword` | 匹配文件名、从 1 开始的行号及该行原文 |
+
+搜索去掉关键词首尾空白，英文字母忽略大小写，每个匹配行返回一条记录。非字符串或空关键词会被拒绝；无匹配正常返回 `count: 0` 和 `matches: []`。
+
+`read_note` 对解析后的路径检查父目录，将读取范围限定在 `notes` 顶层。自动列出和搜索的笔记类型为 `.md` 与 `.txt`。
+
+### 资料与来源约定
+
+- 搜索结果用于定位；解释笔记知识时再通过 `read_note` 获取完整正文。
+- `list_notes` 列出了文件名，不等于模型已取得这些文件的正文。
+- 搜索无匹配只表示关键词没有命中，不能据此断言不存在相关主题资料。
+- 完整正文缺少答案时，模型返回 `insufficient: true`；程序使用固定资料不足文案。
+- 用户看到的来源由程序根据本次成功的 `read_note` 记录生成。
+
+## 最终结果与对话历史
+
+模型的最终 JSON 格式示例：
 
 ```json
-{
-  "ok": false,
-  "error": "Expecting value: line 1 column 9 (char 8)"
-}
+{"insufficient": true, "answer": ""}
 ```
 
-命令明确选择了本项目的解释器，因此这一步不要求先激活环境。
+`run_agent(user_input, messages)` 在成功生成最终答复时返回字典，包含：
 
-## 已完成的亲手练习
+| 字段 | 含义 |
+|---|---|
+| `answer` | 程序最终交付给用户的文本 |
+| `raw_final_content` | 模型返回的原始 JSON 字符串 |
+| `insufficient` | 模型对资料是否不足的布尔判断 |
+| `read_files` | 程序记录的本次实际读取文件名 |
 
-- 修改初始脚本的输出文字并成功运行。
-- 创建 `text_tools.py`，实现文本字符数和行数统计。
-- 在 `main.py` 中导入并调用函数，以 `if __name__ == "__main__"` 控制程序入口。
-- 助手已验证：直接运行输出 `{'characters': 11, 'lines': 2}`；执行 `import main` 时没有输出。
-- 使用 `splitlines()` 统一行数口径；助手已验证空字符串为 0 行、`Hello\n` 为 1 行、`Hello\nAgent` 为 2 行，字符数也符合预期。
-- 在工具函数入口增加 `isinstance(text, str)` 检查；助手已验证正常文本仍返回统计结果，整数和字节串均抛出 `TypeError: text 必须是字符串 str`。
-- 在 `main()` 中捕获 `TypeError`，以 `else` 展示成功结果。学习者提供的两次运行输出表明：错误输入显示清楚的失败提示，正常输入返回统计结果，两种情况均继续执行到“本次调用处理完毕”；助手已核对当前代码中的异常处理逻辑。
-- 使用标准库 `json.dumps()` 输出统一的 JSON 响应。学习者提供的实际输出表明：正常输入得到 `ok: true` 及统计数据，错误输入得到 `ok: false` 及异常说明；助手已核对当前代码中的序列化逻辑。
-- 使用 `json.loads()` 解析工具参数、检查顶层对象类型，再调用工具。助手在不修改源文件的情况下验证了三组输入：`{"text": "Hello Agent"}` 返回 11 个字符、1 行；`{"text": 123}` 返回字符串类型错误；`{"text":}` 返回 JSON 解析错误。
-- 创建 `http_demo.py`，通过 Requests 发送带查询参数的 GET 请求，设置超时、检查 HTTP 错误并解析响应。学习者实际输出为 HTTP 200，回显参数是 `page: "1"` 与 `topic: "agent"`；助手已核对当前代码。
-- 修正 HTTP 功能模块的自身导入，并在 `http_demo.py` 中调用 `fetch_echo()`。助手已验证导入 `http_tools` 时无输出，运行当前入口得到 `page: "2"` 与 `topic: "agent"`，模块连接与参数传递通过。
-- 简化 HTTP 工具函数，去掉捕获后立即重新抛出的冗余处理。学习者提供的实际输出表明：临时请求 `/status/404` 时，`HTTPError` 传播到入口并显示失败提示；恢复 `/get` 后正常返回参数字典。助手已核对代码，确认地址已恢复、入口仍负责捕获请求异常。
-- DeepSeek 密钥配置：学习者已在本机当前 PowerShell 会话中交互设置 `DEEPSEEK_API_KEY`，并报告 Python 输出“密钥已读取”。这一步仅检查环境变量存在；后续已通过首次真实模型请求。密钥未提供给助手或写入项目资料。
-- 首次模型调用：学习者亲手创建 `model_demo.py`，使用环境变量中的密钥、Bearer 请求头和 JSON 请求体，通过 Requests 调用 `deepseek-flash`。学习者实际返回：“Agent 是一个能感知环境、自主决策并采取行动以达成目标的智能实体。”助手已核对当前代码中的请求与回答提取逻辑，调用通过。
-- 模型响应观察：学习者成功打印第一条 choice 的消息、结束原因与用量。本次实际 `role=assistant`、`finish_reason=stop`；输入 11 token，生成 18 token，总计 29；输入缓存命中 0、未命中 11，两者合计为输入 11，缓存字段不额外累加到总数。助手已核对当前摘要输出代码；这些数值属于本次响应，后续调用以实际返回为准。
-- 模型函数封装：学习者已修正客户端返回值为完整字典，移除入口中重复的配置检查，恢复 JSON 摘要并提供真实调用输出，显示“返回类型：dict”。助手随后通过替代 HTTP 响应验证实际客户端返回完整字典、入口正确生成摘要，没有发送额外真实模型请求；返回约定验收通过。
-- 两轮会话：学习者已修正把 `messages` 列表误写为 `email.message` 模块的问题，并正确追加第一轮 assistant 消息和第二轮 user 提问。实际输出为第一轮“已记住。”、第二轮 `agent-lab`，第二次请求角色顺序为 `user / assistant / user`；助手已核对当前会话代码，验收通过。
-- 工具说明：学习者已创建 `tool_definitions.py`，在 `TOOLS` 中描述 `inspect_text`，参数对象包含必填字符串 `text`，`additionalProperties=False`。学习者提供的本地 JSON 输出与助手读取的当前定义一致，说明结构验收通过。
-- 工具调用请求：学习者已为客户端增加可选 `tools` 参数，并创建 `tool_call_demo.py`。实际响应 `finish_reason=tool_calls`，assistant 的 `tool_calls` 中包含函数名 `inspect_text` 和 JSON 字符串参数 `{"text": "Hello\nAgent"}`；助手已核对客户端透传及观察脚本，工具请求观察验收通过。当前尚未在此流程中执行本地函数或回填工具结果。
+失败或达到请求上限而没有最终答复时，当前函数返回 `None`。
 
-## 学习进度
+`messages` 保存用户消息、工具调用及结果、程序展示后的 assistant 最终消息。终端启动时从 `conversation_history.json` 加载，每次任务调用结束后保存当前历史。运行途中手工修改该文件不会自动同步到内存，之后的保存可能覆盖文件修改。
 
-- 当前：Python 工程基础、HTTP 练习、模型调用与函数封装、响应观察、两轮会话、首个工具说明及模型生成工具调用请求均已完成；工具执行、结果回填与循环尚未接通。
-- 学习起点：学习者已有 Python 语法基础，跳过基础语法复习。
-- 行数约定：空字符串为 0 行，末尾换行不额外增加一行，采用 `len(text.splitlines())`。
-- 类型标注：修改前曾实测传入 `bytes` 仍成功返回统计结果，说明类型标注本身不自动执行运行时校验；现在通过显式类型检查拒绝非字符串。
-- HTTP 函数拆分进度：已修复自身导入、简化异常处理，通过正常调用、HTTP 404 失败提示和恢复成功路径的练习。
-- 模型服务选择：学习者选择 DeepSeek；按 DeepSeek 官方 API 准备，沿用已有 Requests，以便观察 HTTP 请求头、JSON 请求体和模型响应。
-- 官方接口核实（2026-10-21）：入口 `https://api.deepseek.com/chat/completions`，认证方式为 Bearer API Key；官方入门示例当前采用模型名 `deepseek-flash`。来源：https://api-docs.deepseek.com/zh-cn/ 。学习者已通过该模型完成一次真实请求。
-- 当前模型参数：`deepseek-flash`，关闭 thinking，`stream=False`，`max_tokens=128`；入口通过 `call_model(messages)` 获取完整响应，打印返回类型与响应摘要。
-- 模型函数离线验收：模块导入没有输出或网络请求，消息正确进入请求体，缺少密钥时抛出 `RuntimeError`，HTTP 请求异常能向调用方传播；修正后客户端返回完整字典，入口正确读取消息、结束原因和用量。上述检查未发送真实模型请求。
-- 下一步教学：先对照已有 CodeCrafters 项目，说明工具定义、请求模型、参数解析执行、结果回填和循环的对应关系，再继续为当前工具请求加入参数校验和 `inspect_text` 执行。学习者已提出两个项目很相似、此前旧项目尚未完全理解，后续教学采用两边代码对照，减少不必要的机制重复。
-- 会话概念核实（2026-10-21）：DeepSeek `/chat/completions` 是无状态接口，每次请求需由程序提交所需对话历史。来源：https://api-docs.deepseek.com/zh-cn/guides/multi_round_chat/ 。两轮练习已完成。
-- 工具调用概念核实（2026-10-21）：工具说明包含名称、用途及参数的 JSON Schema，模型根据说明生成调用请求，实际函数由程序提供并执行。来源：https://api-docs.deepseek.com/zh-cn/guides/tool_calls/ 。
-- HTTP 404 验证（2026-10-21）：助手已确认测试地址返回 HTTP 404，`raise_for_status()` 抛出 `HTTPError`，且该异常属于 `RequestException`；学习者已通过自身工具观察失败并恢复成功路径。
-- HTTP 准备验证（2026-10-21）：`https://httpbin.org/get?topic=agent&page=1` 实测 HTTP 200，响应中的 `args` 包含 `topic: agent` 和 `page: "1"`。
-- 本机笔记服务观察（2026-10-21）：Java 进程监听 8080，但读取笔记列表的两次请求分别在 5 秒和 12 秒超时；当前未确认服务响应问题的原因，尚未修复。HTTP 入门练习使用已验证的公开回显接口，后续接入笔记服务前需重新检查。
-- 后续：与旧项目对照理解、参数解析与校验、工具执行、结果回填、两个工具的 Agent 循环。
+评估脚本另外保存 `agent_result`，保留原始 JSON 与最终展示文本，便于检查程序行为。
 
-## 与已有 CodeCrafters 项目的对应关系
+## 固定用例评估
 
-旧项目：`D:\0A研究生学习\code_clauld_code\codecrafters-claude-code-python-main`。2026-10-21 已读取其实际 `app/main.py`，并核对聊天“完成 Claude Code Skills 阶段任务”。两个工程共享 Agent 的基本机制，当前工程用于逐步亲手重建并验证这些机制。
+五条用例定义在 `eval_cases.json`：
 
-- 当前 `tool_definitions.py` 对应旧项目 `app/main.py` 第 97 行开始的 Read、Write、Bash 工具说明。
-- 当前 `model_client.call_model()` 对应旧项目第 156 行开始的模型请求；旧项目使用 SDK，当前通过 Requests 观察 HTTP 与 JSON。
-- 当前已观察到的 `tool_calls` 对应旧项目第 171 行开始的遍历、`json.loads()` 参数解析和工具分派；当前本地执行尚待接入。
-- 工具结果回填对应旧项目第 198 行的 `role=tool`、`tool_call_id` 与结果内容；继续请求对应第 155 行的循环。当前尚待接入这两段。
-- 旧项目的 Skills 是另一层：第 14 行的 `build_skill_system_prompt()` 提供技能名称和描述，第 50 行的 `resolve_skill_prompt()` 处理 slash 命令并加载技能正文。这些内容进入提示词，和工具函数的名称、参数 schema、实际执行有不同职责。
+| 用例 ID | 验证场景 | 本轮结果 |
+|---|---|---|
+| `read_agent_note` | 指定文件读取与概括 | 通过 |
+| `choose_python_note` | 列出笔记并选择正确文件 | 通过 |
+| `missing_information` | 正文不含答案时说明资料不足 | 通过 |
+| `search_hit` | 搜索命中后读取正文并回答 | 通过 |
+| `search_no_match` | 正常报告零匹配结果 | 通过 |
 
-Java 笔记阶段按本次交接记录收尾：新增/修改的正常、空白、5000 和 5001 字符，共 8 项专项验证通过。该结果来自学习者交接，本项目没有重新执行 Java 接口测试。
+按顺序逐条运行，每条结束后再执行下一条：
+
+1. 执行任务并保存结果，真实调用模型：
+
+   ```powershell
+   .\.venv\Scripts\python.exe .\eval_demo.py
+   ```
+
+2. 对照工具返回与最终回答，人工审核并输入 `y/n`：
+
+   ```powershell
+   .\.venv\Scripts\python.exe .\eval_review.py
+   ```
+
+3. 基于审核快照生成综合报告，本地执行：
+
+   ```powershell
+   .\.venv\Scripts\python.exe .\eval_report.py
+   ```
+
+每条用例使用独立空历史。综合通过需要同时满足：有非空最终回答、成功读取文件符合预期、必需工具成功执行、人工内容审核通过。
+
+`required_tools` 检查必需工具是否至少成功执行一次，目前不检查调用顺序。人工审核还要核对资料不足判断是否符合正文、最终答案是否有依据、来源是否准确。
+
+### 评估产物
+
+| 文件 | 内容 |
+|---|---|
+| `eval_cases.json` | 问题及预期条件，仅问题交给 Agent |
+| `eval_results.json` | 本轮执行轨迹、最终回答与 `agent_result` |
+| `eval_reviews.json` | 当时执行结果的完整快照及人工审核结论 |
+| `eval_report.json` | 自动条件、人工内容结论和综合结果 |
+| `eval_reviews_before_formatter.json` | 引入展示函数前的五条用例与审核基线 |
+
+### 本轮改进记录：4/5 → 5/5
+
+原基线中，`missing_information` 虽说明资料不足，但继续加入笔记之外的术语，人工内容审核未通过。其他四条通过。
+
+改动后，模型返回 `insufficient/answer` JSON；`answer_formatter.py` 对资料不足使用固定文案，并由程序追加实际读取来源。相同五条问题按相同综合条件重新执行与人工审核，本轮结果为 5/5。
+
+评估对象是程序最终交付的回答；原始模型 JSON 保留用于审计。后续改动需重新执行、审核并生成报告，读取旧报告本身不会重新运行任务。
+
+## 核心文件
+
+| 文件 | 职责 |
+|---|---|
+| `model_client.py` | DeepSeek HTTP 请求、密钥读取、可选 JSON 输出模式 |
+| `tool_definitions.py` | 模型可见的工具名称、说明和参数 schema |
+| `tool_executor.py` | 工具注册表与参数解析分发 |
+| `text_tools.py` | 文本统计和大写转换 |
+| `note_tools.py` | 笔记列表、正文读取和关键词搜索 |
+| `answer_formatter.py` | 最终文本与实际读取来源的展示 |
+| `history_store.py` | 对话历史 JSON 读写 |
+| `tool_call_demo.py` | Agent 循环与终端入口 |
+| `eval_demo.py` | 独立历史下批量执行固定任务 |
+| `eval_check.py` | 从调用 ID 和成功工具结果提取验证证据 |
+| `eval_review.py` | 人工内容审核与快照保存 |
+| `eval_report.py` | 综合条件汇总与报告保存 |
+
+早期 Python、HTTP、模型调用练习和旧项目对照说明保存在[学习记录归档](docs/learning-history/README-20261026-before-sync.md)。该归档反映同步前的早期进度；当前功能以本 README 和实际代码为准。
+
+## 下一阶段
+
+- 记录每次任务的请求次数、工具调用次数、耗时与 token 用量。
+- 将更多错误路径纳入可重复检查，并扩充真实笔记与评估任务。
+- 随资料和会话规模增加，完善上下文长度及历史存储处理。

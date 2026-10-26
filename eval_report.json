@@ -1,0 +1,106 @@
+{
+  "total": 5,
+  "passed": 5,
+  "cases": [
+    {
+      "id": "read_agent_note",
+      "answer_present": true,
+      "expected_read_files": [
+        "agent_intro.md"
+      ],
+      "actual_read_files": [
+        "agent_intro.md"
+      ],
+      "read_files_pass": true,
+      "content_review_pass": true,
+      "passed": true,
+      "required_tools": [
+        "read_note"
+      ],
+      "successful_tools": [
+        "read_note"
+      ],
+      "required_tools_pass": true
+    },
+    {
+      "id": "choose_python_note",
+      "answer_present": true,
+      "expected_read_files": [
+        "python_dict.md"
+      ],
+      "actual_read_files": [
+        "python_dict.md"
+      ],
+      "read_files_pass": true,
+      "content_review_pass": true,
+      "passed": true,
+      "required_tools": [
+        "list_notes",
+        "read_note"
+      ],
+      "successful_tools": [
+        "list_notes",
+        "read_note"
+      ],
+      "required_tools_pass": true
+    },
+    {
+      "id": "missing_information",
+      "answer_present": true,
+      "expected_read_files": [
+        "python_dict.md"
+      ],
+      "actual_read_files": [
+        "python_dict.md"
+      ],
+      "read_files_pass": true,
+      "content_review_pass": true,
+      "passed": true,
+      "required_tools": [
+        "read_note"
+      ],
+      "successful_tools": [
+        "read_note"
+      ],
+      "required_tools_pass": true
+    },
+    {
+      "id": "search_hit",
+      "answer_present": true,
+      "expected_read_files": [
+        "python_dict.md"
+      ],
+      "actual_read_files": [
+        "python_dict.md"
+      ],
+      "read_files_pass": true,
+      "content_review_pass": true,
+      "passed": true,
+      "required_tools": [
+        "search_notes",
+        "read_note"
+      ],
+      "successful_tools": [
+        "search_notes",
+        "read_note"
+      ],
+      "required_tools_pass": true
+    },
+    {
+      "id": "search_no_match",
+      "answer_present": true,
+      "expected_read_files": [],
+      "actual_read_files": [],
+      "read_files_pass": true,
+      "content_review_pass": true,
+      "passed": true,
+      "required_tools": [
+        "search_notes"
+      ],
+      "successful_tools": [
+        "search_notes"
+      ],
+      "required_tools_pass": true
+    }
+  ]
+}

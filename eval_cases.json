@@ -1,0 +1,37 @@
+[
+  {
+    "id": "read_agent_note",
+    "required_tools": ["read_note"],
+    "question": "请读取 agent_intro.md，用一句话概括 Agent 循环。",
+    "expected_read_files": ["agent_intro.md"],
+    "expect_insufficient": false
+  },
+  {
+    "id": "choose_python_note",
+    "required_tools": ["list_notes", "read_note"],
+    "question": "请先列出可用笔记，再选择介绍 Python 字典的笔记读取，用一句话解释字典的作用，并标注来源。",
+    "expected_read_files": ["python_dict.md"],
+    "expect_insufficient": false
+  },
+  {
+    "id": "missing_information",
+    "required_tools": ["read_note"],
+    "question": "请读取 python_dict.md，解释 Python 字典内部如何处理哈希冲突。",
+    "expected_read_files": ["python_dict.md"],
+    "expect_insufficient": true
+  },
+  {
+    "id": "search_hit",
+    "question": "请先搜索关键词“字典”，收到搜索结果后读取匹配的笔记正文，再根据正文用一句话解释字典的作用，并标注来源。",
+    "expected_read_files": ["python_dict.md"],
+    "required_tools": ["search_notes", "read_note"],
+    "expect_insufficient": false
+  },
+  {
+    "id": "search_no_match",
+    "question": "请搜索关键词“键值映射”，只报告这个关键词的搜索结果。",
+    "expected_read_files": [],
+    "required_tools": ["search_notes"],
+    "expect_insufficient": false
+  }
+]
