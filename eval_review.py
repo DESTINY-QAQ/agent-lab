@@ -14,10 +14,16 @@ def main() -> None:
         agent_result = case.get("agent_result")
 
         if agent_result is not None:
+            run_ok = agent_result.get("ok")
+            print("运行状态：", run_ok)
+
+            if run_ok is False:
+                print("失败类型：", agent_result.get("error_type"))
+                print("失败原因：", agent_result.get("error"))
+
             print("模型的资料不足判断：", agent_result["insufficient"])
             print("程序记录来源：", agent_result["read_files"])
             print("模型原始 JSON：", agent_result["raw_final_content"])
-
         for message in case["messages"]:
             if message.get("role") != "tool":
                 continue
@@ -28,14 +34,20 @@ def main() -> None:
 
         print("\n最终回答：", case["answer"])
 
-        verdict = input("\n内容审核是否通过（y/n）：").strip().lower()
+        if agent_result is not None and agent_result.get("ok") is False:
+            print("运行失败，内容审核自动记为未通过。")
+            content_pass = False
+        else:
+            verdict = input("\n内容审核是否通过（y/n）：").strip().lower()
 
-        while verdict not in ("y", "n"):
-            verdict = input("请输入 y 或 n：").strip().lower()
+            while verdict not in ("y", "n"):
+                verdict = input("请输入 y 或 n：").strip().lower()
+
+            content_pass = verdict == "y"
 
         reviews.append({
             "case_result": case,
-            "content_pass": verdict == "y",
+            "content_pass": content_pass,
         })
 
     reviews_path = Path(__file__).with_name("eval_reviews.json")

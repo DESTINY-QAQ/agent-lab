@@ -5,13 +5,14 @@
       "required_tools": [
         "read_note"
       ],
+      "required_tool_order": [],
       "question": "请读取 agent_intro.md，用一句话概括 Agent 循环。",
       "expected_read_files": [
         "agent_intro.md"
       ],
       "expect_insufficient": false,
       "has_final_answer": true,
-      "answer": "Agent 循环指模型决定是否调用工具，程序执行工具后把结果返回给模型，如此反复。\n已读取来源：agent_intro.md。",
+      "answer": "Agent 循环是：模型决定是否调用工具，程序执行工具并把结果返回给模型，如此反复。\n已读取来源：agent_intro.md。",
       "messages": [
         {
           "role": "user",
@@ -23,7 +24,7 @@
           "tool_calls": [
             {
               "index": 0,
-              "id": "call_00_tV21RLjiKnSL9iR7j6r86606",
+              "id": "call_00_bgpzeN9Ek8frjZiXJPYA7078",
               "type": "function",
               "function": {
                 "name": "read_note",
@@ -34,21 +35,33 @@
         },
         {
           "role": "tool",
-          "tool_call_id": "call_00_tV21RLjiKnSL9iR7j6r86606",
+          "tool_call_id": "call_00_bgpzeN9Ek8frjZiXJPYA7078",
           "content": "{\"ok\": true, \"data\": {\"filename\": \"agent_intro.md\", \"content\": \"Agent 循环\\n模型决定是否调用工具。\\n程序执行工具，并把结果返回给模型。\"}}"
         },
         {
           "role": "assistant",
-          "content": "Agent 循环指模型决定是否调用工具，程序执行工具后把结果返回给模型，如此反复。\n已读取来源：agent_intro.md。"
+          "content": "Agent 循环是：模型决定是否调用工具，程序执行工具并把结果返回给模型，如此反复。\n已读取来源：agent_intro.md。"
         }
       ],
       "agent_result": {
-        "answer": "Agent 循环指模型决定是否调用工具，程序执行工具后把结果返回给模型，如此反复。\n已读取来源：agent_intro.md。",
-        "raw_final_content": "{\"insufficient\": false, \"answer\": \"Agent 循环指模型决定是否调用工具，程序执行工具后把结果返回给模型，如此反复。\"}",
+        "answer": "Agent 循环是：模型决定是否调用工具，程序执行工具并把结果返回给模型，如此反复。\n已读取来源：agent_intro.md。",
+        "raw_final_content": "{\"insufficient\": false, \"answer\": \"Agent 循环是：模型决定是否调用工具，程序执行工具并把结果返回给模型，如此反复。\"}",
         "insufficient": false,
         "read_files": [
           "agent_intro.md"
-        ]
+        ],
+        "metrics": {
+          "model_requests": 2,
+          "tool_calls": 1,
+          "prompt_tokens": 1630,
+          "completion_tokens": 75,
+          "total_tokens": 1705,
+          "token_usage_complete": true,
+          "elapsed_seconds": 2.933
+        },
+        "ok": true,
+        "error_type": null,
+        "error": null
       }
     },
     "content_pass": true
@@ -60,13 +73,17 @@
         "list_notes",
         "read_note"
       ],
+      "required_tool_order": [
+        "list_notes",
+        "read_note"
+      ],
       "question": "请先列出可用笔记，再选择介绍 Python 字典的笔记读取，用一句话解释字典的作用，并标注来源。",
       "expected_read_files": [
         "python_dict.md"
       ],
       "expect_insufficient": false,
       "has_final_answer": true,
-      "answer": "可用笔记：agent_intro.md、python_dict.md。其中 python_dict.md 介绍字典：字典使用键值对保存数据，可通过键访问对应的值（如 student[\"name\"] 取得学生姓名）。\n已读取来源：python_dict.md。",
+      "answer": "可用笔记有两个：agent_intro.md 和 python_dict.md。介绍 Python 字典的笔记是 python_dict.md，其中说明字典的作用是：用键值对保存数据，并可通过键访问对应的值（例如 student[\"name\"] 取得学生姓名）。来源：python_dict.md\n已读取来源：python_dict.md。",
       "messages": [
         {
           "role": "user",
@@ -78,7 +95,7 @@
           "tool_calls": [
             {
               "index": 0,
-              "id": "call_00_RPOHNW9beq7rTaExhkbl6643",
+              "id": "call_00_4LC0CtGRfk63fl36n9G11696",
               "type": "function",
               "function": {
                 "name": "list_notes",
@@ -89,7 +106,7 @@
         },
         {
           "role": "tool",
-          "tool_call_id": "call_00_RPOHNW9beq7rTaExhkbl6643",
+          "tool_call_id": "call_00_4LC0CtGRfk63fl36n9G11696",
           "content": "{\"ok\": true, \"data\": {\"filenames\": [\"agent_intro.md\", \"python_dict.md\"]}}"
         },
         {
@@ -98,7 +115,7 @@
           "tool_calls": [
             {
               "index": 0,
-              "id": "call_00_BNwCry7jaBpiGiBZs8dJ8779",
+              "id": "call_00_S4aZAJvnIS55UhpArH2m2948",
               "type": "function",
               "function": {
                 "name": "read_note",
@@ -109,21 +126,33 @@
         },
         {
           "role": "tool",
-          "tool_call_id": "call_00_BNwCry7jaBpiGiBZs8dJ8779",
+          "tool_call_id": "call_00_S4aZAJvnIS55UhpArH2m2948",
           "content": "{\"ok\": true, \"data\": {\"filename\": \"python_dict.md\", \"content\": \"Python 字典\\n字典使用键值对保存数据。\\n可以通过键访问对应的值。\\n例如 student[\\\"name\\\"] 可以取得学生姓名。\"}}"
         },
         {
           "role": "assistant",
-          "content": "可用笔记：agent_intro.md、python_dict.md。其中 python_dict.md 介绍字典：字典使用键值对保存数据，可通过键访问对应的值（如 student[\"name\"] 取得学生姓名）。\n已读取来源：python_dict.md。"
+          "content": "可用笔记有两个：agent_intro.md 和 python_dict.md。介绍 Python 字典的笔记是 python_dict.md，其中说明字典的作用是：用键值对保存数据，并可通过键访问对应的值（例如 student[\"name\"] 取得学生姓名）。来源：python_dict.md\n已读取来源：python_dict.md。"
         }
       ],
       "agent_result": {
-        "answer": "可用笔记：agent_intro.md、python_dict.md。其中 python_dict.md 介绍字典：字典使用键值对保存数据，可通过键访问对应的值（如 student[\"name\"] 取得学生姓名）。\n已读取来源：python_dict.md。",
-        "raw_final_content": "{\"insufficient\": false, \"answer\": \"可用笔记：agent_intro.md、python_dict.md。其中 python_dict.md 介绍字典：字典使用键值对保存数据，可通过键访问对应的值（如 student[\\\"name\\\"] 取得学生姓名）。\"}",
+        "answer": "可用笔记有两个：agent_intro.md 和 python_dict.md。介绍 Python 字典的笔记是 python_dict.md，其中说明字典的作用是：用键值对保存数据，并可通过键访问对应的值（例如 student[\"name\"] 取得学生姓名）。来源：python_dict.md\n已读取来源：python_dict.md。",
+        "raw_final_content": "{\"insufficient\": false, \"answer\": \"可用笔记有两个：agent_intro.md 和 python_dict.md。介绍 Python 字典的笔记是 python_dict.md，其中说明字典的作用是：用键值对保存数据，并可通过键访问对应的值（例如 student[\\\"name\\\"] 取得学生姓名）。来源：python_dict.md\"}",
         "insufficient": false,
         "read_files": [
           "python_dict.md"
-        ]
+        ],
+        "metrics": {
+          "model_requests": 3,
+          "tool_calls": 2,
+          "prompt_tokens": 2560,
+          "completion_tokens": 135,
+          "total_tokens": 2695,
+          "token_usage_complete": true,
+          "elapsed_seconds": 3.963
+        },
+        "ok": true,
+        "error_type": null,
+        "error": null
       }
     },
     "content_pass": true
@@ -134,6 +163,7 @@
       "required_tools": [
         "read_note"
       ],
+      "required_tool_order": [],
       "question": "请读取 python_dict.md，解释 Python 字典内部如何处理哈希冲突。",
       "expected_read_files": [
         "python_dict.md"
@@ -148,11 +178,11 @@
         },
         {
           "role": "assistant",
-          "content": "",
+          "content": "         ",
           "tool_calls": [
             {
               "index": 0,
-              "id": "call_00_hyFTilM9gIr2TGCFeG5V7211",
+              "id": "call_00_JhrOBWnCQrsNLUuBLTID6708",
               "type": "function",
               "function": {
                 "name": "read_note",
@@ -163,7 +193,7 @@
         },
         {
           "role": "tool",
-          "tool_call_id": "call_00_hyFTilM9gIr2TGCFeG5V7211",
+          "tool_call_id": "call_00_JhrOBWnCQrsNLUuBLTID6708",
           "content": "{\"ok\": true, \"data\": {\"filename\": \"python_dict.md\", \"content\": \"Python 字典\\n字典使用键值对保存数据。\\n可以通过键访问对应的值。\\n例如 student[\\\"name\\\"] 可以取得学生姓名。\"}}"
         },
         {
@@ -177,7 +207,19 @@
         "insufficient": true,
         "read_files": [
           "python_dict.md"
-        ]
+        ],
+        "metrics": {
+          "model_requests": 2,
+          "tool_calls": 1,
+          "prompt_tokens": 1644,
+          "completion_tokens": 59,
+          "total_tokens": 1703,
+          "token_usage_complete": true,
+          "elapsed_seconds": 2.459
+        },
+        "ok": true,
+        "error_type": null,
+        "error": null
       }
     },
     "content_pass": true
@@ -189,13 +231,17 @@
         "search_notes",
         "read_note"
       ],
+      "required_tool_order": [
+        "search_notes",
+        "read_note"
+      ],
       "question": "请先搜索关键词“字典”，收到搜索结果后读取匹配的笔记正文，再根据正文用一句话解释字典的作用，并标注来源。",
       "expected_read_files": [
         "python_dict.md"
       ],
       "expect_insufficient": false,
       "has_final_answer": true,
-      "answer": "字典使用键值对保存数据，并可通过键访问对应的值（例如 student[\"name\"] 取得学生姓名）。\n已读取来源：python_dict.md。",
+      "answer": "字典的作用是用键值对保存数据，并可通过键访问对应的值（例如 student[\"name\"] 可取得学生姓名）。\n已读取来源：python_dict.md。",
       "messages": [
         {
           "role": "user",
@@ -203,11 +249,11 @@
         },
         {
           "role": "assistant",
-          "content": "     ",
+          "content": "",
           "tool_calls": [
             {
               "index": 0,
-              "id": "call_00_gN8uA0wQPyOmy2Uea2yC8915",
+              "id": "call_00_ML3qcgK1cmOEqFFH4Nlr4985",
               "type": "function",
               "function": {
                 "name": "search_notes",
@@ -218,7 +264,7 @@
         },
         {
           "role": "tool",
-          "tool_call_id": "call_00_gN8uA0wQPyOmy2Uea2yC8915",
+          "tool_call_id": "call_00_ML3qcgK1cmOEqFFH4Nlr4985",
           "content": "{\"ok\": true, \"data\": {\"keyword\": \"字典\", \"count\": 2, \"matches\": [{\"filename\": \"python_dict.md\", \"line_number\": 1, \"content\": \"Python 字典\"}, {\"filename\": \"python_dict.md\", \"line_number\": 2, \"content\": \"字典使用键值对保存数据。\"}]}}"
         },
         {
@@ -227,7 +273,7 @@
           "tool_calls": [
             {
               "index": 0,
-              "id": "call_00_FID1Nyg7F2LiSWYAoNAh0529",
+              "id": "call_00_vv9uxgBMzifiZQzKMjbi1999",
               "type": "function",
               "function": {
                 "name": "read_note",
@@ -238,21 +284,33 @@
         },
         {
           "role": "tool",
-          "tool_call_id": "call_00_FID1Nyg7F2LiSWYAoNAh0529",
+          "tool_call_id": "call_00_vv9uxgBMzifiZQzKMjbi1999",
           "content": "{\"ok\": true, \"data\": {\"filename\": \"python_dict.md\", \"content\": \"Python 字典\\n字典使用键值对保存数据。\\n可以通过键访问对应的值。\\n例如 student[\\\"name\\\"] 可以取得学生姓名。\"}}"
         },
         {
           "role": "assistant",
-          "content": "字典使用键值对保存数据，并可通过键访问对应的值（例如 student[\"name\"] 取得学生姓名）。\n已读取来源：python_dict.md。"
+          "content": "字典的作用是用键值对保存数据，并可通过键访问对应的值（例如 student[\"name\"] 可取得学生姓名）。\n已读取来源：python_dict.md。"
         }
       ],
       "agent_result": {
-        "answer": "字典使用键值对保存数据，并可通过键访问对应的值（例如 student[\"name\"] 取得学生姓名）。\n已读取来源：python_dict.md。",
-        "raw_final_content": "{\"insufficient\": false, \"answer\": \"字典使用键值对保存数据，并可通过键访问对应的值（例如 student[\\\"name\\\"] 取得学生姓名）。\"}",
+        "answer": "字典的作用是用键值对保存数据，并可通过键访问对应的值（例如 student[\"name\"] 可取得学生姓名）。\n已读取来源：python_dict.md。",
+        "raw_final_content": "{\"insufficient\": false, \"answer\": \"字典的作用是用键值对保存数据，并可通过键访问对应的值（例如 student[\\\"name\\\"] 可取得学生姓名）。\"}",
         "insufficient": false,
         "read_files": [
           "python_dict.md"
-        ]
+        ],
+        "metrics": {
+          "model_requests": 3,
+          "tool_calls": 2,
+          "prompt_tokens": 2703,
+          "completion_tokens": 118,
+          "total_tokens": 2821,
+          "token_usage_complete": true,
+          "elapsed_seconds": 3.926
+        },
+        "ok": true,
+        "error_type": null,
+        "error": null
       }
     },
     "content_pass": true
@@ -263,11 +321,12 @@
       "required_tools": [
         "search_notes"
       ],
+      "required_tool_order": [],
       "question": "请搜索关键词“键值映射”，只报告这个关键词的搜索结果。",
       "expected_read_files": [],
       "expect_insufficient": false,
       "has_final_answer": true,
-      "answer": "搜索关键词“键值映射”得到 0 个匹配结果（未找到包含该关键词的笔记正文）。关键词无匹配并不代表笔记中不存在相关主题的资料。",
+      "answer": "搜索关键词“键值映射”未找到匹配，命中数 0，没有匹配的文件、行号或原文。",
       "messages": [
         {
           "role": "user",
@@ -279,7 +338,7 @@
           "tool_calls": [
             {
               "index": 0,
-              "id": "call_00_smQrZfirdjgU9ufQvHKq3573",
+              "id": "call_00_mHPw1dSD3qwvVV63xJBM0669",
               "type": "function",
               "function": {
                 "name": "search_notes",
@@ -290,19 +349,31 @@
         },
         {
           "role": "tool",
-          "tool_call_id": "call_00_smQrZfirdjgU9ufQvHKq3573",
+          "tool_call_id": "call_00_mHPw1dSD3qwvVV63xJBM0669",
           "content": "{\"ok\": true, \"data\": {\"keyword\": \"键值映射\", \"count\": 0, \"matches\": []}}"
         },
         {
           "role": "assistant",
-          "content": "搜索关键词“键值映射”得到 0 个匹配结果（未找到包含该关键词的笔记正文）。关键词无匹配并不代表笔记中不存在相关主题的资料。"
+          "content": "搜索关键词“键值映射”未找到匹配，命中数 0，没有匹配的文件、行号或原文。"
         }
       ],
       "agent_result": {
-        "answer": "搜索关键词“键值映射”得到 0 个匹配结果（未找到包含该关键词的笔记正文）。关键词无匹配并不代表笔记中不存在相关主题的资料。",
-        "raw_final_content": "{\"insufficient\": false, \"answer\": \"搜索关键词“键值映射”得到 0 个匹配结果（未找到包含该关键词的笔记正文）。关键词无匹配并不代表笔记中不存在相关主题的资料。\"}",
+        "answer": "搜索关键词“键值映射”未找到匹配，命中数 0，没有匹配的文件、行号或原文。",
+        "raw_final_content": "{\"insufficient\": false, \"answer\": \"搜索关键词“键值映射”未找到匹配，命中数 0，没有匹配的文件、行号或原文。\"}",
         "insufficient": false,
-        "read_files": []
+        "read_files": [],
+        "metrics": {
+          "model_requests": 2,
+          "tool_calls": 1,
+          "prompt_tokens": 1614,
+          "completion_tokens": 76,
+          "total_tokens": 1690,
+          "token_usage_complete": true,
+          "elapsed_seconds": 2.651
+        },
+        "ok": true,
+        "error_type": null,
+        "error": null
       }
     },
     "content_pass": true

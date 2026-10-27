@@ -9,6 +9,8 @@
   {
     "id": "choose_python_note",
     "required_tools": ["list_notes", "read_note"],
+    "required_tool_order": ["list_notes", "read_note"],
+    "required_round_order": ["list_notes", "read_note"],
     "question": "请先列出可用笔记，再选择介绍 Python 字典的笔记读取，用一句话解释字典的作用，并标注来源。",
     "expected_read_files": ["python_dict.md"],
     "expect_insufficient": false
@@ -25,6 +27,8 @@
     "question": "请先搜索关键词“字典”，收到搜索结果后读取匹配的笔记正文，再根据正文用一句话解释字典的作用，并标注来源。",
     "expected_read_files": ["python_dict.md"],
     "required_tools": ["search_notes", "read_note"],
+    "required_tool_order": ["search_notes", "read_note"],
+    "required_round_order": ["search_notes", "read_note"],
     "expect_insufficient": false
   },
   {

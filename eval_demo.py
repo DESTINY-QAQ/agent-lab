@@ -24,6 +24,8 @@ def main() -> None:
         results.append({
             "id": case["id"],
             "required_tools": case["required_tools"],
+            "required_tool_order": case.get("required_tool_order", []),
+            "required_round_order": case.get("required_round_order", []),
             "question": case["question"],
             "expected_read_files": case["expected_read_files"],
             "expect_insufficient": case["expect_insufficient"],

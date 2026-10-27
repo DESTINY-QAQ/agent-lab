@@ -4,6 +4,9 @@
   "cases": [
     {
       "id": "read_agent_note",
+      "run_ok": true,
+      "error_type": null,
+      "error": null,
       "answer_present": true,
       "expected_read_files": [
         "agent_intro.md"
@@ -20,10 +23,24 @@
       "successful_tools": [
         "read_note"
       ],
-      "required_tools_pass": true
+      "required_tools_pass": true,
+      "metrics": {
+        "model_requests": 2,
+        "tool_calls": 1,
+        "prompt_tokens": 1630,
+        "completion_tokens": 75,
+        "total_tokens": 1705,
+        "token_usage_complete": true,
+        "elapsed_seconds": 2.933
+      },
+      "required_tool_order": [],
+      "tool_order_pass": true
     },
     {
       "id": "choose_python_note",
+      "run_ok": true,
+      "error_type": null,
+      "error": null,
       "answer_present": true,
       "expected_read_files": [
         "python_dict.md"
@@ -42,10 +59,27 @@
         "list_notes",
         "read_note"
       ],
-      "required_tools_pass": true
+      "required_tools_pass": true,
+      "metrics": {
+        "model_requests": 3,
+        "tool_calls": 2,
+        "prompt_tokens": 2560,
+        "completion_tokens": 135,
+        "total_tokens": 2695,
+        "token_usage_complete": true,
+        "elapsed_seconds": 3.963
+      },
+      "required_tool_order": [
+        "list_notes",
+        "read_note"
+      ],
+      "tool_order_pass": true
     },
     {
       "id": "missing_information",
+      "run_ok": true,
+      "error_type": null,
+      "error": null,
       "answer_present": true,
       "expected_read_files": [
         "python_dict.md"
@@ -62,10 +96,24 @@
       "successful_tools": [
         "read_note"
       ],
-      "required_tools_pass": true
+      "required_tools_pass": true,
+      "metrics": {
+        "model_requests": 2,
+        "tool_calls": 1,
+        "prompt_tokens": 1644,
+        "completion_tokens": 59,
+        "total_tokens": 1703,
+        "token_usage_complete": true,
+        "elapsed_seconds": 2.459
+      },
+      "required_tool_order": [],
+      "tool_order_pass": true
     },
     {
       "id": "search_hit",
+      "run_ok": true,
+      "error_type": null,
+      "error": null,
       "answer_present": true,
       "expected_read_files": [
         "python_dict.md"
@@ -84,10 +132,27 @@
         "search_notes",
         "read_note"
       ],
-      "required_tools_pass": true
+      "required_tools_pass": true,
+      "metrics": {
+        "model_requests": 3,
+        "tool_calls": 2,
+        "prompt_tokens": 2703,
+        "completion_tokens": 118,
+        "total_tokens": 2821,
+        "token_usage_complete": true,
+        "elapsed_seconds": 3.926
+      },
+      "required_tool_order": [
+        "search_notes",
+        "read_note"
+      ],
+      "tool_order_pass": true
     },
     {
       "id": "search_no_match",
+      "run_ok": true,
+      "error_type": null,
+      "error": null,
       "answer_present": true,
       "expected_read_files": [],
       "actual_read_files": [],
@@ -100,7 +165,42 @@
       "successful_tools": [
         "search_notes"
       ],
-      "required_tools_pass": true
+      "required_tools_pass": true,
+      "metrics": {
+        "model_requests": 2,
+        "tool_calls": 1,
+        "prompt_tokens": 1614,
+        "completion_tokens": 76,
+        "total_tokens": 1690,
+        "token_usage_complete": true,
+        "elapsed_seconds": 2.651
+      },
+      "required_tool_order": [],
+      "tool_order_pass": true
     }
-  ]
+  ],
+  "metrics_summary": {
+    "case_count": 5,
+    "model_requests": 12,
+    "tool_calls": 7,
+    "prompt_tokens": 10151,
+    "completion_tokens": 463,
+    "total_tokens": 10614,
+    "elapsed_seconds": 15.932,
+    "avg_elapsed_seconds": 3.186
+  },
+  "run_summary": {
+    "case_count": 5,
+    "success_count": 5,
+    "failure_count": 0,
+    "unknown_count": 0,
+    "failure_types": {}
+  },
+  "activity_summary": {
+    "case_count": 5,
+    "model_requests": 12,
+    "tool_calls": 7,
+    "elapsed_seconds": 15.932,
+    "avg_elapsed_seconds": 3.186
+  }
 }
